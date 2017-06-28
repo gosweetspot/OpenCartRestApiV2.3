@@ -1,4 +1,4 @@
-# OpenCartRestApiV2.3
+# OpenCartRestApiV2.3+
 GSS Opencart Rest API gateway for Opencart2.3+
 
 # README / INSTALLATION  #
