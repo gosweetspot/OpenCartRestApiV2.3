@@ -8,6 +8,7 @@ This extension is provided on a as-is basis.
 Installation is at your own risk.
 
 **OpenCart V1.x users should use this version https://github.com/gosweetspot/OpenCartRestApi
+
 **OpenCart V2.0 up to V2.3 should use this version https://github.com/gosweetspot/OpenCartRestApiV2
 
 
