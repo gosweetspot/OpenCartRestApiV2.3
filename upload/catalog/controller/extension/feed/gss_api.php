@@ -13,29 +13,41 @@ class ControllerExtensionFeedGssApi extends Controller {
 
 		$orderData['orders'] = array();
 
-		/* check offset parameter */
-		if (isset($this->request->get['offset']) && $this->request->get['offset'] != "" && ctype_digit($this->request->get['offset'])) {
-			$offset = $this->request->get['offset'];
+		
+		if (isset($this->request->get['pageSize']) && !empty($this->request->get['pageSize']) && ctype_digit($this->request->get['pageSize'])) {
+			$pageSize = $this->request->get['pageSize'];
 		} else {
-			$offset = 0;
+			$pageSize = 100;
+		}
+		
+		if (isset($this->request->get['page']) && !empty($this->request->get['page']) && ctype_digit($this->request->get['page'])) {
+			$page = $this->request->get['page'];
+		} else {
+			$page = 1;
+		}
+		
+		if (isset($this->request->get['dateTime']) && !empty($this->request->get['dateTime']) ) {
+			$DateTime = $this->request->get['dateTime'];
+		} else {
+			$DateTime = '';
 		}
 
-		/* check limit parameter */
-		if (isset($this->request->get['limit']) && $this->request->get['limit'] != "" && ctype_digit($this->request->get['limit'])) {
-			$limit = $this->request->get['limit'];
+		if (isset($this->request->get['status']) && !empty($this->request->get['status']) ) {
+			$statusids = $this->request->get['status'];
 		} else {
-			$limit = 10000;
-		}
-
-		if (isset($this->request->get['status']) && $this->request->get['status'] != "" && ctype_digit($this->request->get['status'])) {
-			$status = $this->request->get['status'];
-		} else {
-			$status = 0;
+			$statusids = '';
 		}
 
 		$this->load->model('account/gss_order');
 
-		$results = $this->model_account_gss_order->getOrderByStatusId($status);
+		$filter_data = array(
+			'statusids' => $statusids,
+			'DateTime'   => $DateTime,
+			'start'                  => ($page - 1) * $pageSize,
+			'limit'                  => $pageSize
+		);
+		
+		$results = $this->model_account_gss_order->getOrderByStatusId($filter_data);
 
 		if ($this->debugIt) {
 			echo '<pre>';
@@ -43,6 +55,48 @@ class ControllerExtensionFeedGssApi extends Controller {
 			echo '</pre>';
 		} else {
 			$this->response->setOutput(json_encode($results));
+		}
+	}
+
+	public function UpdateOrder() {
+		$this->checkPlugin();
+
+		$orderData['orders'] = array();
+
+		
+		if (isset($this->request->get['orderId']) && !empty($this->request->get['orderId'])  && ctype_digit($this->request->get['orderId'])) {
+			$OrderId = $this->request->get['orderId'];
+		} else {
+			$OrderId = '';
+		}
+		
+		if (isset($this->request->get['statusId']) && !empty($this->request->get['statusId'])  && ctype_digit($this->request->get['statusId'])) {
+			$StatusId = $this->request->get['statusId'];
+		} else {
+			$StatusId = 0;
+		}
+		
+		if (isset($this->request->get['trackingNumber']) && !empty($this->request->get['trackingNumber']) ) {
+			$TrackingNumber = $this->request->get['trackingNumber'];
+		} else {
+			$TrackingNumber = '';
+		}
+
+		
+
+		$this->load->model('checkout/order');
+
+		 
+
+		$this->model_checkout_order->addOrderHistory($OrderId,$StatusId,'Tracking Link: ' . $TrackingNumber,false,false);
+		$json = array("OrderId" => $OrderId, "Status" => $StatusId, "Tracking" => $TrackingNumber);
+		
+		if ($this->debugIt) {
+			echo '<pre>';
+			print_r($json);
+			echo '</pre>';
+		} else {
+			$this->response->setOutput(json_encode($json));
 		}
 	}
 
@@ -65,6 +119,7 @@ class ControllerExtensionFeedGssApi extends Controller {
 			echo(json_encode($json));
 			exit;
 		} else {
+			$json = array("success" => true);
 			$this->response->setOutput(json_encode($json));
 		}
 	}
