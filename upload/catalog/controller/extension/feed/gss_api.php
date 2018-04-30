@@ -3,6 +3,10 @@
 class ControllerExtensionFeedGssApi extends Controller {
 
 	private $debugIt = false;
+	
+	public function version() {
+		echo("1.2");
+	}
 
 	/*
 	 * Get orders
